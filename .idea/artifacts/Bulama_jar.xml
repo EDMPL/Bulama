@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Bulama:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Bulama_jar</output-path>
+    <root id="archive" name="Bulama.jar" />
+  </artifact>
+</component>
