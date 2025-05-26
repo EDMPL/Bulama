@@ -8,7 +8,10 @@ repositories {
 
 dependencies {
     compileOnly("net.portswigger.burp.extensions:montoya-api:2025.3")
+    implementation("org.json:json:20250517")
+
 }
+
 
 tasks.withType<JavaCompile> {
     sourceCompatibility = "21"
