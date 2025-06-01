@@ -11,7 +11,7 @@ Setup local ollama server for communicating with local model using this tool. Do
 
 ## Setup Server
 
-Set Origin Policy (Please be aware for security impact if setting all origin, source [here](https://objectgraph.com/blog/ollama-cors/)):
+Set Origin Policy (Please be aware for security impact if trusting all origin, source [here](https://objectgraph.com/blog/ollama-cors/)):
 
 MacOS: ```launchctl setenv OLLAMA_ORIGINS "*"``` or set any ```origin launchctl setenv OLLAMA_ORIGINS "burp://*"```
 
@@ -33,6 +33,10 @@ Windows: ```Add the variables OLLAMA_HOST and OLLAMA_ORIGINS in Windows Environm
 Check if its returning 204 or 403 (or other error response code):
 
 ```curl -X OPTIONS http://localhost:11434 -H "Origin: http://example.com" -H "Access-Control-Request-Method: GET" -I```
+
+### Potential Performance Issue
+
+Please note that depending on your computer capability the inference might need some time. So please wait a moment until you get response from your locally hosted LLM.
 
 ### Load Extension
 
