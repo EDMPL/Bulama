@@ -3,7 +3,11 @@ import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.ui.menu.BasicMenuItem;
 import burp.api.montoya.ui.menu.Menu;
 import burp.api.montoya.ui.menu.MenuItem;
-import org.json.JSONObject;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -19,11 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import burp.api.montoya.utilities.json.JsonObjectNode;
+
 
 public class Extension implements BurpExtension {
     private static final String EXTENSION_NAME = "Bulama";
-    private static final String SYSTEM_PROMPT = "You are Bulama, a cybersecurity expert that can assist the user to test a system";
+    private static final String SYSTEM_PROMPT = "You are Bulama, a cybersecurity expert that can assist the user to test a system.";
     public String MODEL_NAME;
+    public String prompt;
     public int status;
 
     @Override
@@ -58,21 +65,49 @@ public class Extension implements BurpExtension {
             con.setRequestMethod("GET");
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String resp;
+            this.status = con.getResponseCode();
             StringBuffer responseBody = new StringBuffer();
             while ((resp = in.readLine()) != null) {
                 responseBody.append(resp);
             }
             in.close();
             con.disconnect();
-            montoyaApi.logging().logToOutput("Response from server: " + responseBody.toString());
+            String modelString = responseBody.toString();
+
+            JsonObject root = JsonParser.parseString(modelString).getAsJsonObject();
+            JsonArray modelArray = root.getAsJsonArray("models");
+
+            for (JsonElement modelElement : modelArray){
+                JsonObject modelObject = modelElement.getAsJsonObject();
+                String modelName = modelObject.get("name").getAsString();
+                montoyaApi.logging().logToOutput("MODEL USED: " + modelName);
+                MODEL_NAME = modelName; // Set the model name to the instance variable
+            }
 
         } catch (Exception e) {
-            montoyaApi.logging().logToOutput("Error happened, response code: " + status);
+            montoyaApi.logging().logToOutput("Error happened when fetching model, response code: " + status);
             //throw new RuntimeException(e);
         }
 
+        ui.addSubmitListener(e ->{ 
+            // Get the prompt from the UI
+            String userPrompt = ui.getPrompt();
+            if (userPrompt == null || userPrompt.isEmpty()) {
+                montoyaApi.logging().logToOutput("Prompt is empty, please enter a valid prompt.");
+                return;
+            }
+            montoyaApi.logging().logToOutput("User prompt: " + userPrompt);
+            
+            this.prompt = userPrompt;
+            
+            generateResponse(montoyaApi, userPrompt, ui);
+        });
 
-        // GENERATE RESPOMSE
+    }
+
+    // GENERATE RESPOMSE
+
+    public void generateResponse(MontoyaApi montoyaApi, String prompt, UserInterface ui) {
         try {
             URL url = new URL("http://localhost:11434/api/generate");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -80,9 +115,9 @@ public class Extension implements BurpExtension {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
-            String jsonInputString = "{ \"model\": \"llama3.2\", " +
+            String jsonInputString = "{ \"model\": \"" + MODEL_NAME + "\", " +
                     "\"system\": \"" + SYSTEM_PROMPT + "\", " +
-                    "\"prompt\": \"Hi, are you ready?\", " +
+                    "\"prompt\": \"" + prompt + "\", " +
                     "\"stream\": false }";
 
             //Write JSON to request body
@@ -106,7 +141,12 @@ public class Extension implements BurpExtension {
                 response.append(line);
             }
             br.close();
-            montoyaApi.logging().logToOutput("Response: " + response.toString());
+            String responseString = response.toString();
+            String LMresp = JsonParser.parseString(responseString).getAsJsonObject().get("response").getAsString();
+            ui.setResponse(LMresp);
+            //montoyaApi.logging().logToOutput("Response code: " + status);
+            //montoyaApi.logging().logToOutput("Response body: " + response.toString());
+            //montoyaApi.logging().logToOutput("Response: " + response.toString());
 
             conn.disconnect();
 
@@ -114,7 +154,6 @@ public class Extension implements BurpExtension {
             montoyaApi.logging().logToOutput("Error happened, response code: " + status);
             //throw new RuntimeException(e);
         }
-
     }
 
 }

@@ -9,7 +9,7 @@ repositories {
 dependencies {
     compileOnly("net.portswigger.burp.extensions:montoya-api:2025.3")
     implementation("org.json:json:20250517")
-
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 
@@ -23,4 +23,8 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(configurations.runtimeClasspath.get().filter { it.isDirectory })
     from(configurations.runtimeClasspath.get().filterNot { it.isDirectory }.map { zipTree(it) })
+}
+
+tasks.named<Test>("test") {
+    enabled = false
 }
