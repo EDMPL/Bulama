@@ -34,12 +34,12 @@ Check if its returning 204 or 403 (or other error response code):
 
 ```curl -X OPTIONS http://localhost:11434 -H "Origin: http://example.com" -H "Access-Control-Request-Method: GET" -I```
 
-### Potential Performance Issue
-
-Please note that depending on your computer capability the inference might need some time. So please wait a moment until you get response from your locally hosted LLM.
-
 ### Load Extension
 
 Load the JAR file and see if it can connect to the local model.
 
 ![Loading Extension](./assets/Image/load_Bullama.png)
+
+### Performance Issue
+
+Please note that depending on your computer capability the inference might need some time. So please wait a moment until you get response from your locally hosted LLM.
