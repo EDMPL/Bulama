@@ -1,6 +1,6 @@
 # Bulama
 
-Bulama is a simple Burp Suite Extension that can interact with locally hosted Language Model using Ollama. Inference is done on your local machine without any remote server support, so its 100% free. 
+Bulama is a simple Burp Suite Extension that can interact with locally hosted LLM using Ollama. Inference is done on your local machine without any remote server support, so its 100% free. This work is inspired by [Lumos Chrome Extension](https://github.com/andrewnguonly/Lumos).
 
 ![Bulama Screenshot](./assets/Image/Bulama_SS.png)
 
@@ -11,7 +11,7 @@ Setup local ollama server for communicating with local model using this tool. Do
 
 ## Setup Server
 
-Set Origin Policy (Please be aware for security impact if setting all origin):
+Set Origin Policy (Please be aware for security impact if setting all origin, source [here](https://objectgraph.com/blog/ollama-cors/)):
 
 MacOS: ```launchctl setenv OLLAMA_ORIGINS "*"``` or set any ```origin launchctl setenv OLLAMA_ORIGINS "burp://*"```
 
